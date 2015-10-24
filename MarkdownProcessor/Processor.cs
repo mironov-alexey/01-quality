@@ -1,51 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MarkdownProcessor
 {
     public class Processor
     {
-        private readonly string _text;
-        private Dictionary<string, string> _markdown2openTags; 
-        private Dictionary<string, string> _markdown2closeTags;
-        public Processor(string text)
+        public string Replace(string textForRendering, string markdownTag, string htmlTag)
         {
-            _text = text;
-            _markdown2openTags = new Dictionary<string, string>()
+            var replacer = new Regex(@"([^\w\\]|^)" + markdownTag + @"(.*?[^\\])" + markdownTag + @"(\W|$)");
+            return replacer.Replace(textForRendering,
+                match => match.Groups[1].Value +
+                    "<" + htmlTag + ">" + match.Groups[2].Value + "</" + htmlTag + ">" +
+                    match.Groups[3].Value);
+        }
+
+        public string Render(string textForRendering)
+        {
+            var htmlTags = new List<string>()
             {
-                {"_",  "<em>"},
-                {"__",  "<strong>"},
-                {"`",  "<code>"}
+                "strong",
+                "em",
+                "code"
             };
-            _markdown2closeTags = new Dictionary<string, string>()
+            var markdownTags = new List<string>()
             {
-                {"_", "</em>" },
-                {"__", "</strong>" },
-                {"`", "</code>" }
+                "__",
+                "_",
+                "`"
             };
+            var renderedText = textForRendering;
+            for (var i = 0; i < htmlTags.Count; i++)
+                renderedText = Replace(renderedText, markdownTags[i], htmlTags[i]);
+            renderedText = renderedText.Replace(@"\_", "_");
+            renderedText = renderedText.Replace(@"\`", "`");
+            return renderedText;
         }
-
-        public bool IsOpeningTag(int index)
-        {
-            return Regex.IsMatch(_text.Substring(index + 1, 1), @"\w");
-            throw new NotImplementedException();
-        }
-
-        public bool IsClosingTag(int index)
-        {
-            return Regex.IsMatch(_text.Substring(index - 1, 1), @"\w");
-            throw new NotImplementedException();
-        }
-
-        private string GetHtmlView()
-        {
-            throw new NotImplementedException();
-        }
-
-
     }
 }
