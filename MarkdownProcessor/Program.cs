@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace MarkdownProcessor
 {
@@ -10,14 +13,11 @@ namespace MarkdownProcessor
     {
         private static void Main(string[] args)
         {
-            var d = new Dictionary<string, string>()
-            {
-                {"a", "1"},
-                {"b", "2"},
-                {"c", "3"},
-            };
-            foreach (var item in d)
-                Console.WriteLine("{0} {1}", item.Key, item.Value);
+//            var input = "_a __b c_ `some \n\ncode is__ here`";
+            var input = File.ReadAllText("in.txt");
+            var res = new Processor(input).RenderTags();
+            Console.WriteLine(res);
+            File.WriteAllText("out.txt", res);
         }
     }
 }
