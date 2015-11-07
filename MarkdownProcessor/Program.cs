@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.UI;
 
 namespace MarkdownProcessor
 {
@@ -13,9 +14,9 @@ namespace MarkdownProcessor
     {
         private static void Main(string[] args)
         {
-//            var input = "_a __b c_ `some \n\ncode is__ here`";
             var input = File.ReadAllText("in.txt");
-            var res = new Processor(input).RenderTags();
+//            var res = new Processor(input).RenderText();
+            var res = new Processor(input).GetHtmlCode();
             Console.WriteLine(res);
             File.WriteAllText("out.txt", res);
         }
