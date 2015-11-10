@@ -68,7 +68,7 @@ namespace MarkdownProcessor
             return new Processor(text).RenderText();
         }
 
-        [TestCase("a\n\nb\r\n\r\nc", Result = "a\n</p>\n<p>\n    b\r\n</p>\r\n<p>\r\n    c")]
+        [TestCase("a\n\nb\r\n\r\nc", Result = "a\n</p>\n<p>\n    b\n</p>\n<p>\n    c")]
         public string Correctly_RenderParagraphTags(string text)
         {
             return new Processor(text).ReplaceParagraphTags(text);

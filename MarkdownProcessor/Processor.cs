@@ -15,20 +15,23 @@ namespace MarkdownProcessor
             _inputText = inputText;
             _tags = tags;
         }
+
         public Processor(string inputText)
         {
             _inputText = inputText;
             _tags = new Dictionary<string, string>()
             {
-                {"__", "strong" },
+                {"__", "strong"},
                 {"_", "em"},
-                {"`", "code" }
+                {"`", "code"}
             };
         }
+
         public string ReplaceParagraphTags(string text)
         {
-            return text.Replace("\n\n", "\n</p>\n<p>\n    ").Replace("\r\n\r\n", "\r\n</p>\r\n<p>\r\n    ");
+            return Regex.Replace(text, @"(\n\s*\n)|(\r\n\s*\r\n)", "\n</p>\n<p>\n    ");
         }
+
         public string RenderText()
         {
             var openingTagsCandidates = GetOpeningTagCandidates().ToList();
@@ -63,7 +66,7 @@ namespace MarkdownProcessor
             return result;
         }
 
-        
+
         private string GetHandledUnpairedText(List<Tag> openingTags, string result, int i, Tag openingTag)
         {
             if (i + 1 < openingTags.Count)
@@ -77,12 +80,14 @@ namespace MarkdownProcessor
         {
             return new Processor(inputText).RenderText();
         }
+
         private string AddEndOfText(string result, Tag closingTag, IReadOnlyList<Tag> openingTags, int i)
         {
             result += _inputText.Substring(closingTag.Index + closingTag.Value.Length,
                 openingTags[i + 1].Index - (closingTag.Index + closingTag.Value.Length));
             return result;
         }
+
         private string RenderTagAndContent(string text, Tag openingTag, Tag closingTag)
         {
             var currentSubstring = text.Substring(
@@ -97,13 +102,14 @@ namespace MarkdownProcessor
             else
                 currentSubstring = RenderText(currentSubstring);
             return "<" + _tags[openingTag.Value] + ">"
-                + currentSubstring + "</" + _tags[openingTag.Value] + ">";
+                   + currentSubstring + "</" + _tags[openingTag.Value] + ">";
         }
 
         public bool IsCodeTag(Tag tag)
         {
             return tag.Value == "`";
         }
+
         public Tag GetPairTag(Tag openingTag, IEnumerable<Tag> closingTags)
         {
             try
@@ -115,6 +121,7 @@ namespace MarkdownProcessor
                 return null;
             }
         }
+
         public IEnumerable<Tag> GetOpeningTagCandidates()
         {
             return Regex
@@ -145,6 +152,7 @@ namespace MarkdownProcessor
             var isPunctuation = _inputText[charIndex] != '\\' && char.IsPunctuation(_inputText[charIndex]);
             return isSpace || isPunctuation;
         }
+
         public bool IsWordOrPunctuationCharacter(int charIndex)
         {
             if (charIndex < 0 || charIndex > _inputText.Length - 1)
@@ -154,20 +162,24 @@ namespace MarkdownProcessor
             var isPunctuation = _inputText[charIndex] != '\\' && char.IsPunctuation(_inputText[charIndex]);
             return (isLetter || isPunctuation) && isNotDigit;
         }
+
         public bool IsOpeningTag(Tag tag)
         {
             if (tag.Index == _inputText.Length - 1)
                 return false;
             return
                 tag.Index == 0 && IsWordOrPunctuationCharacter(tag.Index + tag.Value.Length) ||
-                IsWhiteSpaceOrPunctuationChar(tag.Index - 1) && IsWordOrPunctuationCharacter(tag.Index + tag.Value.Length);
+                IsWhiteSpaceOrPunctuationChar(tag.Index - 1) &&
+                IsWordOrPunctuationCharacter(tag.Index + tag.Value.Length);
         }
+
         public bool IsClosingTag(Tag tag)
         {
             if (tag.Index == 0)
                 return false;
             return tag.Index == (_inputText.Length - 1) && IsWordOrPunctuationCharacter(tag.Index - 1) ||
-                   IsWordOrPunctuationCharacter(tag.Index - 1) && IsWhiteSpaceOrPunctuationChar(tag.Index + tag.Value.Length);
+                   IsWordOrPunctuationCharacter(tag.Index - 1) &&
+                   IsWhiteSpaceOrPunctuationChar(tag.Index + tag.Value.Length);
         }
 
         public string GetHtmlCode()
