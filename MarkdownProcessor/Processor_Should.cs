@@ -137,5 +137,15 @@ namespace MarkdownProcessor
         {
             return new Processor(text).RenderText();
         }
+
+        [TestCase("_a_ __b__ _c_", Result = "<em>a</em> <strong>b</strong> <em>c</em>")]
+        [TestCase("_a __b__ _c_", Result = "<em>a <strong>b</strong> _c</em>")]
+        [TestCase("1_a __b__ _c_", Result = "1_a <strong>b</strong> <em>c</em>")]
+        [TestCase("__a__ _b_ __c__", Result = "<strong>a</strong> <em>b</em> <strong>c</strong>")]
+        public string Render_SeveralTags(string text)
+        {
+            return new Processor(text).RenderText();
+        }
+
     }
 }
