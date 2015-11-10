@@ -1,41 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace MarkdownProcessor
 {
     [TestFixture]
     public class Processor_Should
     {
-        private Processor processor;
+        private Processor _processor;
 
         [TestCase("aa", Result = true)]
         [TestCase("00", Result = false)]
-        [TestCase("..", Result = true)]
-        [TestCase("__", Result = true)]
-        [TestCase("--", Result = true)]
         [TestCase("яя", Result = true)]
         [TestCase("я", Result = false)]
-        public bool Identify_WordOrPunctuationCharacter(string text)
+        public bool Identify_WordCharacter(string text)
         {
-            return new Processor(text).IsWordOrPunctuationCharacter(1);
+            return new Processor(text).IsWordAtIndex(1);
         }
 
         [TestCase("_ ", Result = true)]
-        [TestCase("_.", Result = true)]
         [TestCase("_", Result = true)]
         [TestCase("_\n", Result = true)]
         [TestCase("_a", Result = false)]
         [TestCase("_1", Result = false)]
         [TestCase("_\t", Result = true)]
         [TestCase("_\r", Result = true)]
-        public bool Identify_WhiteSpaceOrPunctuationCharacter(string text)
+        public bool Identify_WhiteSpaceCharacter(string text)
         {
-            return new Processor(text).IsWhiteSpaceOrPunctuationChar(1);
+            return new Processor(text).IsWhiteSpaceCharacterAtIndex(1);
+        }
+
+        [TestCase("_.", Result = true)]
+        [TestCase("..", Result = true)]
+        [TestCase("__", Result = true)]
+        [TestCase("--", Result = true)]
+        public bool Identify_PunctuationCharacter(string text)
+        {
+            return new Processor(text).IsPunctuationCharacterAtIndex(1, TagType.Closing);
         }
 
         [TestCase(0, "_", Result = true)]
@@ -47,8 +46,8 @@ namespace MarkdownProcessor
         [TestCase(13, "`", Result = false)]
         public bool Correctly_IdentifyOpeningTags(int position, string tag)
         {
-            processor = new Processor("_a_b __c_ ,`d`");
-            return processor.IsOpeningTag(new Tag(position, tag));
+            _processor = new Processor("_a_b __c_ ,`d`");
+            return _processor.IsOpeningTag(new Tag(position, tag));
         }
 
         [TestCase(0, "_", Result = false)]
@@ -58,8 +57,8 @@ namespace MarkdownProcessor
         [TestCase(11, "`", Result = true)]
         public bool Correctly_IdentifyClosingTags(int position, string tag)
         {
-            processor = new Processor("_a_b_ c__ d`.");
-            return processor.IsClosingTag(new Tag(position, tag));
+            _processor = new Processor("_a_b_ c__ d`.");
+            return _processor.IsClosingTag(new Tag(position, tag, TagType.Closing));
         }
 
         [TestCase("lalal", Result = "lalal")]
@@ -71,7 +70,7 @@ namespace MarkdownProcessor
         [TestCase("a\n\nb\r\n\r\nc", Result = "a\n</p>\n<p>\n    b\n</p>\n<p>\n    c")]
         public string Correctly_RenderParagraphTags(string text)
         {
-            return new Processor(text).ReplaceParagraphTags(text);
+            return new Processor(text).ReplaceParagraphTags();
         }
 
         [TestCase("_a_", Result = "<em>a</em>")]
