@@ -88,7 +88,13 @@ namespace MarkdownProcessor
             var currentSubstring = text.Substring(
                 openingTag.Index + openingTag.Value.Length,
                 closingTag.Index - openingTag.Index - openingTag.Value.Length);
-            if (!IsCodeTag(openingTag))
+            if (IsCodeTag(openingTag))
+                currentSubstring = currentSubstring
+                    .Replace("\r\n\r\n", " ")
+                    .Replace("\n\n", " ")
+                    .Replace("\r\n", " ")
+                    .Replace("\n", " ");
+            else
                 currentSubstring = RenderText(currentSubstring);
             return "<" + _tags[openingTag.Value] + ">"
                 + currentSubstring + "</" + _tags[openingTag.Value] + ">";

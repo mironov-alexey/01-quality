@@ -107,6 +107,7 @@ namespace MarkdownProcessor
         [TestCase("`a _b_ c`", Result = "<code>a _b_ c</code>")]
         [TestCase("`a __b__ c`", Result = "<code>a __b__ c</code>")]
         [TestCase("`a `b` c`", Result = "<code>a `b</code> c`")]
+        [TestCase("`a\n\nb`", Result = "<code>a b</code>")]
         public string NotRender_TagsInCodeTag(string text)
         {
             return new Processor(text).RenderText();
